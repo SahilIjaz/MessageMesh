@@ -1,0 +1,252 @@
+version: '3.8'
+
+services:
+  # PostgreSQL databases
+  postgres:
+    image: postgres:16-alpine
+    container_name: messagemesh-postgres
+    environment:
+      POSTGRES_USER: messagemesh
+      POSTGRES_PASSWORD: dev_password
+      POSTGRES_DB: messagemesh
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U messagemesh"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - messagemesh-network
+
+  # Redis for Presence Service
+  redis:
+    image: redis:7-alpine
+    container_name: messagemesh-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - messagemesh-network
+
+  # RabbitMQ for event messaging
+  rabbitmq:
+    image: rabbitmq:3.13-management-alpine
+    container_name: messagemesh-rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: messagemesh
+      RABBITMQ_DEFAULT_PASS: dev_password
+    ports:
+      - "5672:5672"      # AMQP
+      - "15672:15672"    # Management UI
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - messagemesh-network
+
+  # Auth Service
+  auth-service:
+    build:
+      context: ../services/auth-service
+      dockerfile: Dockerfile
+    container_name: messagemesh-auth-service
+    environment:
+      NODE_ENV: development
+      PORT: 3001
+      DATABASE_URL: postgresql://messagemesh:dev_password@postgres:5432/messagemesh
+      RABBITMQ_URL: amqp://messagemesh:dev_password@rabbitmq:5672
+      JWT_SECRET: your-jwt-secret-key-change-in-prod
+    ports:
+      - "3001:3001"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - messagemesh-network
+
+  # User/Profile Service
+  user-service:
+    build:
+      context: ../services/user-service
+      dockerfile: Dockerfile
+    container_name: messagemesh-user-service
+    environment:
+      NODE_ENV: development
+      PORT: 3002
+      DATABASE_URL: postgresql://messagemesh:dev_password@postgres:5432/messagemesh
+      RABBITMQ_URL: amqp://messagemesh:dev_password@rabbitmq:5672
+      AUTH_SERVICE_URL: http://auth-service:3001
+    ports:
+      - "3002:3002"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - messagemesh-network
+
+  # Messaging Service
+  messaging-service:
+    build:
+      context: ../services/messaging-service
+      dockerfile: Dockerfile
+    container_name: messagemesh-messaging-service
+    environment:
+      NODE_ENV: development
+      PORT: 3003
+      DATABASE_URL: postgresql://messagemesh:dev_password@postgres:5432/messagemesh
+      RABBITMQ_URL: amqp://messagemesh:dev_password@rabbitmq:5672
+      PRESENCE_SERVICE_URL: http://presence-service:3004
+      USER_SERVICE_URL: http://user-service:3002
+    ports:
+      - "3003:3003"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - messagemesh-network
+
+  # Presence Service
+  presence-service:
+    build:
+      context: ../services/presence-service
+      dockerfile: Dockerfile
+    container_name: messagemesh-presence-service
+    environment:
+      NODE_ENV: development
+      PORT: 3004
+      REDIS_URL: redis://redis:6379
+    ports:
+      - "3004:3004"
+    depends_on:
+      redis:
+        condition: service_healthy
+    networks:
+      - messagemesh-network
+
+  # Notification Service
+  notification-service:
+    build:
+      context: ../services/notification-service
+      dockerfile: Dockerfile
+    container_name: messagemesh-notification-service
+    environment:
+      NODE_ENV: development
+      PORT: 3005
+      DATABASE_URL: postgresql://messagemesh:dev_password@postgres:5432/messagemesh
+      RABBITMQ_URL: amqp://messagemesh:dev_password@rabbitmq:5672
+      SMTP_HOST: mailhog
+      SMTP_PORT: 1025
+    ports:
+      - "3005:3005"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - messagemesh-network
+
+  # Media Service
+  media-service:
+    build:
+      context: ../services/media-service
+      dockerfile: Dockerfile
+    container_name: messagemesh-media-service
+    environment:
+      NODE_ENV: development
+      PORT: 3006
+      AWS_S3_BUCKET: messagemesh-local
+      AWS_S3_REGION: us-east-1
+      AWS_ACCESS_KEY_ID: local
+      AWS_SECRET_ACCESS_KEY: local
+      S3_ENDPOINT: http://minio:9000
+    ports:
+      - "3006:3006"
+    depends_on:
+      - minio
+    networks:
+      - messagemesh-network
+
+  # API Gateway
+  api-gateway:
+    build:
+      context: ../services/api-gateway
+      dockerfile: Dockerfile
+    container_name: messagemesh-api-gateway
+    environment:
+      NODE_ENV: development
+      PORT: 3000
+      REDIS_URL: redis://redis:6379
+      AUTH_SERVICE_URL: http://auth-service:3001
+      USER_SERVICE_URL: http://user-service:3002
+      MESSAGING_SERVICE_URL: http://messaging-service:3003
+      PRESENCE_SERVICE_URL: http://presence-service:3004
+      NOTIFICATION_SERVICE_URL: http://notification-service:3005
+      MEDIA_SERVICE_URL: http://media-service:3006
+      JWT_SECRET: your-jwt-secret-key-change-in-prod
+    ports:
+      - "3000:3000"
+    depends_on:
+      - auth-service
+      - user-service
+      - messaging-service
+      - presence-service
+      - notification-service
+      - media-service
+    networks:
+      - messagemesh-network
+
+  # MinIO (S3-compatible storage for local development)
+  minio:
+    image: minio/minio:latest
+    container_name: messagemesh-minio
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio_data:/minio_root/data
+    command: server /minio_root/data --console-address ":9001"
+    networks:
+      - messagemesh-network
+
+  # MailHog for email testing
+  mailhog:
+    image: mailhog/mailhog:latest
+    container_name: messagemesh-mailhog
+    ports:
+      - "1025:1025"  # SMTP
+      - "8025:8025"  # Web UI
+    networks:
+      - messagemesh-network
+
+volumes:
+  postgres_data:
+  redis_data:
+  rabbitmq_data:
+  minio_data:
+
+networks:
+  messagemesh-network:
+    driver: bridge
