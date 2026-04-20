@@ -7,6 +7,25 @@ const schemas = {
     timestamp: Joi.date().required(),
   }),
 
+  USER_PROFILE_CREATED: Joi.object({
+    userId: Joi.string().uuid().required(),
+    firstName: Joi.string().required(),
+    lastName: Joi.string().required(),
+    timestamp: Joi.date().required(),
+  }),
+
+  CONNECTION_REQUESTED: Joi.object({
+    userId: Joi.string().uuid().required(),
+    connectedUserId: Joi.string().uuid().required(),
+    timestamp: Joi.date().required(),
+  }),
+
+  CONNECTION_ACCEPTED: Joi.object({
+    userId: Joi.string().uuid().required(),
+    connectedUserId: Joi.string().uuid().required(),
+    timestamp: Joi.date().required(),
+  }),
+
   PASSWORD_RESET_REQUESTED: Joi.object({
     userId: Joi.string().uuid().required(),
     email: Joi.string().email().required(),

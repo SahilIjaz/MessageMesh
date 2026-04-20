@@ -9,16 +9,17 @@ A real-time chat application built with a modern microservices architecture. Fea
 git clone https://github.com/SahilIjaz/MessageMesh.git
 cd MessageMesh
 
-# Start all services
-cd infra
+# Start all services (includes PostgreSQL, Redis, RabbitMQ)
 docker-compose up --build
 ```
 
 Services will be available at:
 - **API Gateway:** http://localhost:3000
-- **RabbitMQ UI:** http://localhost:15672
-- **MailHog (Email):** http://localhost:8025
-- **MinIO (S3):** http://localhost:9001
+- **Auth Service:** http://localhost:3001
+- **User Service:** http://localhost:3002
+- **PostgreSQL:** localhost:5432
+- **Redis:** localhost:6379
+- **RabbitMQ:** http://localhost:15672 (guest:guest)
 
 ## Architecture
 
@@ -297,4 +298,4 @@ MIT
 ---
 
 **Last updated:** April 20, 2026  
-**Status:** Foundation phase — Services scaffold complete, ready for implementation
+**Status:** Phase 1 Week 1 — Auth Service, User Service, and API Gateway complete with full functionality
