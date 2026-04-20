@@ -348,6 +348,133 @@ Response (200):
 
 ---
 
+## Message Service (Port 3003)
+
+**All endpoints require JWT token in Authorization header**
+
+### Send Message
+```
+POST /messages/send
+Authorization: Bearer {accessToken}
+Content-Type: application/json
+
+Request:
+{
+  "recipientId": "550e8400-e29b-41d4-a716-446655440001",
+  "content": "Hello, this is a message!"
+}
+
+Response (201):
+{
+  "id": "550e8400-e29b-41d4-a716-446655440005",
+  "conversation_id": "550e8400-e29b-41d4-a716-446655440003",
+  "sender_id": "550e8400-e29b-41d4-a716-446655440000",
+  "content": "Hello, this is a message!",
+  "status": "sent",
+  "created_at": "2026-04-20T10:30:00.000Z",
+  "updated_at": "2026-04-20T10:30:00.000Z"
+}
+
+Errors:
+- 400: Cannot send message to yourself
+- 404: Recipient not found
+```
+
+### Get Message History
+```
+GET /messages/history?recipientId={id}&limit=50&offset=0
+Authorization: Bearer {accessToken}
+
+Response (200):
+{
+  "data": [
+    {
+      "id": "550e8400-e29b-41d4-a716-446655440005",
+      "conversation_id": "550e8400-e29b-41d4-a716-446655440003",
+      "sender_id": "550e8400-e29b-41d4-a716-446655440000",
+      "content": "Hello, this is a message!",
+      "status": "read",
+      "delivered_at": "2026-04-20T10:30:10.000Z",
+      "read_at": "2026-04-20T10:30:20.000Z",
+      "created_at": "2026-04-20T10:30:00.000Z"
+    }
+  ],
+  "limit": 50,
+  "offset": 0,
+  "total": 42
+}
+
+Query Parameters:
+- recipientId: UUID of conversation partner (required)
+- limit: Results per page (default 50, max 100)
+- offset: Pagination offset (default 0)
+```
+
+### Update Message Status
+```
+PUT /messages/status
+Authorization: Bearer {accessToken}
+Content-Type: application/json
+
+Request:
+{
+  "messageId": "550e8400-e29b-41d4-a716-446655440005",
+  "status": "delivered"
+}
+
+Response (200):
+{
+  "status": "updated"
+}
+
+Status Values:
+- delivered: Mark message as delivered to recipient
+- read: Mark message as read by recipient
+
+Errors:
+- 404: Message not found
+- 400: Cannot update status of your own message
+```
+
+### Get Conversations
+```
+GET /messages/conversations?limit=50&offset=0
+Authorization: Bearer {accessToken}
+
+Response (200):
+{
+  "data": [
+    {
+      "id": "550e8400-e29b-41d4-a716-446655440003",
+      "user_id_1": "550e8400-e29b-41d4-a716-446655440000",
+      "user_id_2": "550e8400-e29b-41d4-a716-446655440001",
+      "created_at": "2026-04-20T10:30:00.000Z",
+      "updated_at": "2026-04-20T10:35:00.000Z"
+    }
+  ],
+  "limit": 50,
+  "offset": 0
+}
+
+Query Parameters:
+- limit: Results per page (default 50, max 100)
+- offset: Pagination offset (default 0)
+```
+
+### Health Check
+```
+GET /health
+
+Response (200):
+{
+  "status": "healthy",
+  "service": "message-service",
+  "timestamp": "2026-04-20T10:30:00.000Z"
+}
+```
+
+---
+
 ## API Gateway (Port 3000)
 
 ### Gateway Health Check

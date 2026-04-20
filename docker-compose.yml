@@ -98,6 +98,31 @@ services:
     volumes:
       - ./services/user-service/src:/app/src
 
+  # Message Service
+  message-service:
+    build:
+      context: ./services/message-service
+      dockerfile: Dockerfile
+    container_name: messagemesh-message
+    environment:
+      PORT: 3003
+      NODE_ENV: development
+      DEBUG: 1
+      DATABASE_URL: postgresql://messagemesh:messagemesh@postgres:5432/messagemesh
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672
+      REDIS_URL: redis://redis:6379
+    ports:
+      - "3003:3003"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    volumes:
+      - ./services/message-service/src:/app/src
+
   # API Gateway
   api-gateway:
     build:
@@ -121,6 +146,7 @@ services:
       - redis
       - auth-service
       - user-service
+      - message-service
     volumes:
       - ./services/api-gateway/src:/app/src
 

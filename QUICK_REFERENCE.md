@@ -37,10 +37,21 @@ curl -X GET http://localhost:3000/users/profile \
 curl -X GET "http://localhost:3000/users/search?q=john" \
   -H "Authorization: Bearer TOKEN"
 
+# Send message
+curl -X POST http://localhost:3000/messages/send \
+  -H "Authorization: Bearer TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"recipientId":"USER_ID","content":"Hello!"}'
+
+# Get message history
+curl -X GET "http://localhost:3000/messages/history?recipientId=USER_ID" \
+  -H "Authorization: Bearer TOKEN"
+
 # Health checks
 curl http://localhost:3000/health
 curl http://localhost:3001/health
 curl http://localhost:3002/health
+curl http://localhost:3003/health
 ```
 
 ## Service Ports
@@ -50,7 +61,7 @@ curl http://localhost:3002/health
 | API Gateway | 3000 | HTTP |
 | Auth Service | 3001 | HTTP |
 | User Service | 3002 | HTTP |
-| Message Service | 3003 | HTTP/WS |
+| Message Service | 3003 | HTTP |
 | Presence Service | 3004 | HTTP/WS |
 | PostgreSQL | 5432 | DB |
 | Redis | 6379 | Cache |
@@ -69,6 +80,13 @@ npm run test        # Run tests
 
 # User Service
 cd services/user-service
+npm install
+npm run dev
+npm run migrate
+npm run test
+
+# Message Service
+cd services/message-service
 npm install
 npm run dev
 npm run migrate
@@ -353,6 +371,7 @@ Before committing code:
 - RabbitMQ Admin: http://localhost:15672 (guest:guest)
 - Auth Service: http://localhost:3001
 - User Service: http://localhost:3002
+- Message Service: http://localhost:3003
 - API Gateway: http://localhost:3000
 
 ---
