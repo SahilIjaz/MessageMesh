@@ -2,6 +2,7 @@ const { consumeEvent, publishEvent } = require('@messagemesh/events').eventBus;
 const eventNames = require('@messagemesh/events').eventNames;
 const logger = require('@messagemesh/middleware').logger;
 const { deliverToUser } = require('../websocket/ws-server');
+const { getRedis } = require('../redis/connection');
 
 const initEventConsumers = async () => {
   try {
@@ -30,6 +31,23 @@ const initEventConsumers = async () => {
             messageId,
             recipientId,
             conversationId,
+            service: 'presence-service',
+          });
+        } else {
+          const redis = getRedis();
+          const payload = JSON.stringify({
+            type: 'message_delivered',
+            messageId,
+            conversationId,
+            senderId,
+            timestamp,
+          });
+          await redis.rPush(`offline_queue:${recipientId}`, payload);
+          await redis.lTrim(`offline_queue:${recipientId}`, -100, -1);
+          logger.info({
+            message: 'Message queued for offline delivery',
+            messageId,
+            recipientId,
             service: 'presence-service',
           });
         }

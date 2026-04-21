@@ -1,6 +1,7 @@
 const { getRedis } = require('../redis/connection');
 const { AppError } = require('@messagemesh/middleware').errorHandler;
 const logger = require('@messagemesh/middleware').logger;
+const { getOnlineUserIds } = require('../websocket/ws-server');
 
 const getStatus = async (req, res, next) => {
   try {
@@ -37,13 +38,19 @@ const getBatchStatus = async (req, res, next) => {
     const redis = getRedis();
     const statusMap = {};
 
+    const pipeline = redis.multi();
     for (const userId of userIdArray) {
-      const isOnline = await redis.get(`presence:${userId}`);
-      const lastSeen = await redis.get(`presence:lastseen:${userId}`);
+      pipeline.get(`presence:${userId}`);
+      pipeline.get(`presence:lastseen:${userId}`);
+    }
+    const results = await pipeline.exec();
+
+    for (let i = 0; i < userIdArray.length; i++) {
+      const userId = userIdArray[i];
       statusMap[userId] = {
         userId,
-        online: isOnline ? true : false,
-        lastSeen: lastSeen || null,
+        online: results[i * 2] ? true : false,
+        lastSeen: results[i * 2 + 1] || null,
       };
     }
 
@@ -55,7 +62,20 @@ const getBatchStatus = async (req, res, next) => {
   }
 };
 
+const getOnlineList = (req, res, next) => {
+  try {
+    const onlineUserIds = getOnlineUserIds();
+    res.status(200).json({
+      online: onlineUserIds,
+      count: onlineUserIds.length,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   getStatus,
   getBatchStatus,
+  getOnlineList,
 };

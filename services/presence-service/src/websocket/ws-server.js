@@ -181,18 +181,23 @@ const deliverToUser = (userId, data) => {
   return false;
 };
 
-const isOnline = (userId) => {
+const isOnline = async (userId) => {
   const ws = connectionRegistry.get(userId);
-  return ws && ws.readyState === WebSocket.OPEN;
+  if (ws && ws.readyState === WebSocket.OPEN) return true;
+  const redis = getRedis();
+  return !!(await redis.get(`presence:${userId}`));
 };
 
 const getConnectionCount = () => {
   return connectionRegistry.size;
 };
 
+const getOnlineUserIds = () => Array.from(connectionRegistry.keys());
+
 module.exports = {
   initWsServer,
   deliverToUser,
   isOnline,
   getConnectionCount,
+  getOnlineUserIds,
 };

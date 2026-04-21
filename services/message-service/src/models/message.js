@@ -90,6 +90,21 @@ const getUserConversations = async (userId, limit = 50, offset = 0) => {
     .offset(offset);
 };
 
+const getUndeliveredMessages = async (recipientId, limit = 50) => {
+  const db = getConnection();
+  return db('messages')
+    .join('conversations', 'messages.conversation_id', 'conversations.id')
+    .where('messages.status', 'sent')
+    .where((builder) => {
+      builder.where('conversations.user_id_1', recipientId)
+          .orWhere('conversations.user_id_2', recipientId);
+    })
+    .whereNot('messages.sender_id', recipientId)
+    .orderBy('messages.created_at', 'asc')
+    .limit(limit)
+    .select('messages.*');
+};
+
 module.exports = {
   findOrCreateConversation,
   getConversation,
@@ -100,4 +115,5 @@ module.exports = {
   getMessage,
   getConversationBetweenUsers,
   getUserConversations,
+  getUndeliveredMessages,
 };
