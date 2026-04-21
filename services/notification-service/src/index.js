@@ -23,7 +23,7 @@ const runMigrations = async () => {
     await db.migrate.latest();
     logger.info('Database migrations completed');
   } catch (err) {
-    logger.error('Migration failed', err);
+    logger.error('Migration failed: ' + err.message);
     process.exit(1);
   }
 };
