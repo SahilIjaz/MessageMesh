@@ -5,7 +5,7 @@ const controller = require('../controllers/media-controller');
 
 const router = express.Router();
 
-const uploadDir = process.env.UPLOAD_DIR || '/app/uploads';
+const uploadDir = process.env.UPLOAD_DIR || path.join(__dirname, '../uploads');
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {

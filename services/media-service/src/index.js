@@ -12,7 +12,7 @@ const { logger } = require('@messagemesh/middleware');
 
 const app = express();
 const PORT = process.env.PORT || 3006;
-const uploadDir = process.env.UPLOAD_DIR || '/app/uploads';
+const uploadDir = process.env.UPLOAD_DIR || path.join(__dirname, '../uploads');
 
 app.use(express.json());
 app.use(requestIdMiddleware);
@@ -23,7 +23,7 @@ const runMigrations = async () => {
     await db.migrate.latest();
     logger.info('Database migrations completed');
   } catch (err) {
-    logger.error('Migration failed', err);
+    console.error('Migration failed:', err.message);
     process.exit(1);
   }
 };
@@ -76,7 +76,7 @@ const startServer = async () => {
       logger.info(`Media Service listening on port ${PORT}`);
     });
   } catch (err) {
-    logger.error('Failed to start server', err);
+    console.error('Failed to start server:', err.message, err.stack);
     process.exit(1);
   }
 };
