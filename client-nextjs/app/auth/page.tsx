@@ -21,13 +21,20 @@ export default function AuthPage() {
 
     try {
       if (isLogin) {
+        console.log('🔓 Login attempt:', { email });
         await login(email, password);
+        console.log('✅ Login successful for:', email);
       } else {
+        console.log('📝 Registration attempt:', { email });
         await register(email, password);
+        console.log('✅ Registration successful for:', email);
       }
+      console.log('🚀 Redirecting to dashboard...');
       router.push('/');
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Authentication failed');
+      const errorMsg = err instanceof Error ? err.message : 'Authentication failed';
+      console.error('❌ Authentication error:', errorMsg);
+      setError(errorMsg);
     } finally {
       setLoading(false);
     }
@@ -36,44 +43,44 @@ export default function AuthPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-600 to-purple-700 flex items-center justify-center p-4">
       <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8">
-        <h1 className="text-3xl font-bold text-center mb-2 text-gray-800">
+        <h1 className="text-3xl font-bold text-center mb-2 text-black">
           MessageMesh
         </h1>
-        <p className="text-center text-gray-500 mb-8">
+        <p className="text-center text-black font-medium mb-8">
           {isLogin ? 'Welcome back' : 'Create your account'}
         </p>
 
         <form onSubmit={handleSubmit} className="space-y-5">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-semibold text-black mb-2">
               Email
             </label>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-black placeholder-gray-500"
               placeholder="your@email.com"
               required
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-semibold text-black mb-2">
               Password
             </label>
             <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-black placeholder-gray-500"
               placeholder="••••••••"
               required
             />
           </div>
 
           {error && (
-            <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+            <div className="p-3 bg-red-50 border-2 border-red-400 rounded-lg text-red-700 font-medium text-sm">
               {error}
             </div>
           )}
@@ -87,14 +94,14 @@ export default function AuthPage() {
           </button>
         </form>
 
-        <p className="text-center text-gray-600 mt-6 text-sm">
+        <p className="text-center text-black font-medium mt-6 text-sm">
           {isLogin ? "Don't have an account? " : 'Already have an account? '}
           <button
             onClick={() => {
               setIsLogin(!isLogin);
               setError('');
             }}
-            className="text-blue-600 font-semibold hover:underline"
+            className="text-blue-600 font-semibold hover:underline ml-1"
           >
             {isLogin ? 'Register' : 'Login'}
           </button>
