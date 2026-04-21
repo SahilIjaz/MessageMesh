@@ -1,5 +1,6 @@
 require('dotenv').config();
 const express = require('express');
+const cors = require('cors');
 const { createProxyMiddleware } = require('http-proxy-middleware');
 const { errorHandler, requestIdMiddleware, rateLimiter } = require('@messagemesh/middleware');
 const { logger } = require('@messagemesh/middleware');
@@ -22,6 +23,12 @@ const SERVICE_URLS = {
 // Middleware
 app.use(express.json({ limit: '10mb' }));
 app.use(requestIdMiddleware);
+app.use(cors({
+  origin: process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(',') : '*',
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Request-Id'],
+  credentials: true,
+}));
 app.use(rateLimiter({ maxRequests: 100, windowSeconds: 60 }));
 
 // Health check
