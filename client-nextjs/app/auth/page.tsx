@@ -82,10 +82,22 @@ export default function AuthPage() {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-black placeholder-gray-500"
+              className={`w-full px-4 py-2 border-2 rounded-lg focus:outline-none focus:ring-2 text-black placeholder-gray-500 transition ${
+                email === ''
+                  ? 'border-gray-300 focus:ring-blue-500'
+                  : emailValid
+                  ? 'border-green-500 focus:ring-green-500'
+                  : 'border-red-500 focus:ring-red-500'
+              }`}
               placeholder="your@email.com"
               required
             />
+            {email && !emailValid && (
+              <p className="text-red-600 text-xs font-medium mt-1">❌ Invalid email format</p>
+            )}
+            {email && emailValid && (
+              <p className="text-green-600 text-xs font-medium mt-1">✓ Valid email</p>
+            )}
           </div>
 
           <div>
@@ -96,10 +108,42 @@ export default function AuthPage() {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-black placeholder-gray-500"
+              className={`w-full px-4 py-2 border-2 rounded-lg focus:outline-none focus:ring-2 text-black placeholder-gray-500 transition ${
+                password === ''
+                  ? 'border-gray-300 focus:ring-blue-500'
+                  : passwordValidation.isValid
+                  ? 'border-green-500 focus:ring-green-500'
+                  : 'border-red-500 focus:ring-red-500'
+              }`}
               placeholder="••••••••"
               required
             />
+            {password && (
+              <div className="mt-2 space-y-1">
+                <div className="flex items-center gap-2">
+                  <span className={passwordValidation.isLongEnough ? '✓' : '❌'}>
+                    <span className={`text-xs font-medium ${passwordValidation.isLongEnough ? 'text-green-600' : 'text-red-600'}`}>
+                      {passwordValidation.isLongEnough ? '✓' : '❌'} At least 8 characters ({password.length}/8)
+                    </span>
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className={`text-xs font-medium ${passwordValidation.hasUppercase ? 'text-green-600' : 'text-red-600'}`}>
+                    {passwordValidation.hasUppercase ? '✓' : '❌'} One uppercase letter
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className={`text-xs font-medium ${passwordValidation.hasLowercase ? 'text-green-600' : 'text-red-600'}`}>
+                    {passwordValidation.hasLowercase ? '✓' : '❌'} One lowercase letter
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className={`text-xs font-medium ${passwordValidation.hasNumbers ? 'text-green-600' : 'text-red-600'}`}>
+                    {passwordValidation.hasNumbers ? '✓' : '❌'} One number
+                  </span>
+                </div>
+              </div>
+            )}
           </div>
 
           {error && (
@@ -110,8 +154,8 @@ export default function AuthPage() {
 
           <button
             type="submit"
-            disabled={loading}
-            className="w-full bg-blue-600 text-white py-2 rounded-lg font-semibold hover:bg-blue-700 transition disabled:opacity-50"
+            disabled={loading || !emailValid || (!isLogin && !passwordValidation.isValid)}
+            className="w-full bg-blue-600 text-white py-2 rounded-lg font-semibold hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? 'Loading...' : isLogin ? 'Login' : 'Register'}
           </button>
