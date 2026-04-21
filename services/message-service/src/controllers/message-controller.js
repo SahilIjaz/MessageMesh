@@ -178,9 +178,48 @@ const getConversations = async (req, res, next) => {
   }
 };
 
+const markMessageReadSchema = Joi.object({
+  messageId: Joi.string().uuid().required(),
+});
+
+const markMessageRead = async (req, res, next) => {
+  try {
+    const { error, value } = markMessageReadSchema.validate(req.params);
+    if (error) {
+      throw new AppError(error.details[0].message, 400, 'VALIDATION_ERROR');
+    }
+
+    const { messageId } = value;
+    const userId = req.userId;
+
+    const message = await getMessage(messageId);
+    if (!message) {
+      throw new AppError('Message not found', 404, 'MESSAGE_NOT_FOUND');
+    }
+
+    if (message.sender_id === userId) {
+      throw new AppError('Cannot mark your own message as read', 400, 'INVALID_ACTION');
+    }
+
+    await updateMessageStatus(messageId, 'read');
+
+    await publishEvent(eventNames.MESSAGE_READ, {
+      messageId,
+      conversationId: message.conversation_id,
+      readBy: userId,
+      timestamp: new Date(),
+    });
+
+    res.status(200).json({ success: true });
+  } catch (err) {
+    next(err);
+  }
+};
+
 module.exports = {
   sendMsg,
   getHistory,
   updateStatus,
   getConversations,
+  markMessageRead,
 };

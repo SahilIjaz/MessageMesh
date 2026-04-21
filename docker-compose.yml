@@ -48,6 +48,13 @@ services:
       timeout: 10s
       retries: 5
 
+  mailhog:
+    image: mailhog/mailhog:latest
+    container_name: messagemesh-mailhog
+    ports:
+      - "1025:1025"
+      - "8025:8025"
+
   # Auth Service
   auth-service:
     build:
@@ -207,6 +214,33 @@ services:
       - ./services/media-service/src:/app/src
       - media_uploads:/app/uploads
 
+  # Notification Service
+  notification-service:
+    build:
+      context: ./services/notification-service
+      dockerfile: Dockerfile
+    container_name: messagemesh-notification
+    environment:
+      PORT: 3005
+      NODE_ENV: development
+      DEBUG: 1
+      DATABASE_URL: postgresql://messagemesh:messagemesh@postgres:5432/messagemesh
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672
+      SMTP_HOST: mailhog
+      SMTP_PORT: 1025
+      JWT_SECRET: dev-jwt-secret
+    ports:
+      - "3005:3005"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      mailhog:
+        condition: service_started
+    volumes:
+      - ./services/notification-service/src:/app/src
+
   # API Gateway
   api-gateway:
     build:
@@ -235,6 +269,7 @@ services:
       - presence-service
       - group-chat-service
       - media-service
+      - notification-service
     volumes:
       - ./services/api-gateway/src:/app/src
 
