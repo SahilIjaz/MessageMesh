@@ -18,23 +18,49 @@ export interface User {
 
 export const api = {
   async register(email: string, password: string) {
-    const res = await fetch(`${API_BASE_URL}/auth/register`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password }),
-    });
-    if (!res.ok) throw new Error('Registration failed');
-    return res.json() as Promise<AuthResponse>;
+    try {
+      console.log('🌐 POST /auth/register - Sending registration request');
+      const res = await fetch(`${API_BASE_URL}/auth/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+      console.log('📨 Response status:', res.status);
+      if (!res.ok) {
+        const errorData = await res.text();
+        console.error('❌ Registration failed:', errorData);
+        throw new Error(`Registration failed: ${res.status}`);
+      }
+      const data = await res.json();
+      console.log('✅ Registration successful');
+      return data as AuthResponse;
+    } catch (error) {
+      console.error('❌ Registration API error:', error);
+      throw error;
+    }
   },
 
   async login(email: string, password: string) {
-    const res = await fetch(`${API_BASE_URL}/auth/login`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password }),
-    });
-    if (!res.ok) throw new Error('Login failed');
-    return res.json() as Promise<AuthResponse>;
+    try {
+      console.log('🌐 POST /auth/login - Sending login request');
+      const res = await fetch(`${API_BASE_URL}/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+      console.log('📨 Response status:', res.status);
+      if (!res.ok) {
+        const errorData = await res.text();
+        console.error('❌ Login failed:', errorData);
+        throw new Error(`Login failed: ${res.status}`);
+      }
+      const data = await res.json();
+      console.log('✅ Login successful');
+      return data as AuthResponse;
+    } catch (error) {
+      console.error('❌ Login API error:', error);
+      throw error;
+    }
   },
 
   async getProfile(token: string) {
