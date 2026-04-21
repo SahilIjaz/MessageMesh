@@ -2,13 +2,16 @@ FROM node:18-alpine
 
 WORKDIR /app
 
-# Install dependencies
+# Copy root and all workspaces
 COPY package.json package-lock.json ./
-RUN npm ci --only=production
+COPY shared ./shared
+COPY services/auth-service ./services/auth-service
 
-# Copy application
-COPY src ./src
-COPY knexfile.js .
+# Install all dependencies (root + all workspaces)
+RUN npm ci --omit=dev
+
+# Move service files to root for easier access
+RUN mv services/auth-service/* . && rm -rf services
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=40s --retries=3 \

@@ -3,9 +3,12 @@ FROM node:18-alpine
 WORKDIR /app
 
 COPY package.json package-lock.json ./
+COPY shared ./shared
+COPY services/group-chat-service ./services/group-chat-service
+
 RUN npm ci --omit=dev
 
-COPY . .
+RUN mv services/group-chat-service/* . && rm -rf services
 
 EXPOSE 3007
 

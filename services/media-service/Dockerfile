@@ -3,9 +3,12 @@ FROM node:18-alpine
 WORKDIR /app
 
 COPY package.json package-lock.json ./
+COPY shared ./shared
+COPY services/media-service ./services/media-service
+
 RUN npm ci --omit=dev
 
-COPY . .
+RUN mv services/media-service/* . && rm -rf services
 
 RUN mkdir -p /app/uploads
 
