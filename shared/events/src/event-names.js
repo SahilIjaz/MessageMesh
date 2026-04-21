@@ -11,6 +11,8 @@ const EVENTS = {
   USER_OFFLINE: 'user.offline',
   MESSAGE_DELIVERED: 'message.delivered',
   MESSAGE_READ: 'message.read',
+  TYPING_STARTED: 'typing.started',
+  TYPING_STOPPED: 'typing.stopped',
 };
 
 module.exports = EVENTS;

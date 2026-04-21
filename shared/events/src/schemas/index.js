@@ -44,6 +44,8 @@ const schemas = {
     messageId: Joi.string().uuid().required(),
     conversationId: Joi.string().uuid().required(),
     senderId: Joi.string().uuid().required(),
+    recipientId: Joi.string().uuid().required(),
+    content: Joi.string().required(),
     timestamp: Joi.date().required(),
   }),
 
@@ -77,6 +79,20 @@ const schemas = {
     messageId: Joi.string().uuid().required(),
     conversationId: Joi.string().uuid().required(),
     readBy: Joi.string().uuid().required(),
+    timestamp: Joi.date().required(),
+  }),
+
+  TYPING_STARTED: Joi.object({
+    senderId: Joi.string().uuid().required(),
+    recipientId: Joi.string().uuid().required(),
+    conversationId: Joi.string().uuid().required(),
+    timestamp: Joi.date().required(),
+  }),
+
+  TYPING_STOPPED: Joi.object({
+    senderId: Joi.string().uuid().required(),
+    recipientId: Joi.string().uuid().required(),
+    conversationId: Joi.string().uuid().required(),
     timestamp: Joi.date().required(),
   }),
 };
