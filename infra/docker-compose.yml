@@ -102,11 +102,11 @@ services:
       - messagemesh-network
 
   # Messaging Service
-  messaging-service:
+  message-service:
     build:
-      context: ../services/messaging-service
+      context: ../services/message-service
       dockerfile: Dockerfile
-    container_name: messagemesh-messaging-service
+    container_name: messagemesh-message-service
     environment:
       NODE_ENV: development
       PORT: 3003
@@ -198,7 +198,7 @@ services:
       REDIS_URL: redis://redis:6379
       AUTH_SERVICE_URL: http://auth-service:3001
       USER_SERVICE_URL: http://user-service:3002
-      MESSAGING_SERVICE_URL: http://messaging-service:3003
+      MESSAGE_SERVICE_URL: http://message-service:3003
       PRESENCE_SERVICE_URL: http://presence-service:3004
       NOTIFICATION_SERVICE_URL: http://notification-service:3005
       MEDIA_SERVICE_URL: http://media-service:3006
@@ -208,7 +208,7 @@ services:
     depends_on:
       - auth-service
       - user-service
-      - messaging-service
+      - message-service
       - presence-service
       - notification-service
       - media-service

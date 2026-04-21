@@ -49,8 +49,12 @@ app.use('/users', validateJWT, createProxyMiddleware({
   changeOrigin: true,
   pathRewrite: { '^/users': '' },
   onProxyReq: (proxyReq, req) => {
-    proxyReq.setHeader('X-User-Id', req.userId);
-    proxyReq.setHeader('X-Request-Id', req.requestId);
+    if (req.userId) {
+      proxyReq.setHeader('X-User-Id', req.userId);
+    }
+    if (req.requestId) {
+      proxyReq.setHeader('X-Request-Id', req.requestId);
+    }
   },
   onError: (err, req, res) => {
     logger.error({
@@ -71,8 +75,12 @@ app.use('/messages', validateJWT, createProxyMiddleware({
   pathRewrite: { '^/messages': '' },
   ws: true,
   onProxyReq: (proxyReq, req) => {
-    proxyReq.setHeader('X-User-Id', req.userId);
-    proxyReq.setHeader('X-Request-Id', req.requestId);
+    if (req.userId) {
+      proxyReq.setHeader('X-User-Id', req.userId);
+    }
+    if (req.requestId) {
+      proxyReq.setHeader('X-Request-Id', req.requestId);
+    }
   },
   onError: (err, req, res) => {
     logger.error({
@@ -93,8 +101,12 @@ app.use('/presence', validateJWT, createProxyMiddleware({
   pathRewrite: { '^/presence': '' },
   ws: true,
   onProxyReq: (proxyReq, req) => {
-    proxyReq.setHeader('X-User-Id', req.userId);
-    proxyReq.setHeader('X-Request-Id', req.requestId);
+    if (req.userId) {
+      proxyReq.setHeader('X-User-Id', req.userId);
+    }
+    if (req.requestId) {
+      proxyReq.setHeader('X-Request-Id', req.requestId);
+    }
   },
   onError: (err, req, res) => {
     logger.error({
@@ -114,8 +126,12 @@ app.use('/notifications', validateJWT, createProxyMiddleware({
   changeOrigin: true,
   pathRewrite: { '^/notifications': '' },
   onProxyReq: (proxyReq, req) => {
-    proxyReq.setHeader('X-User-Id', req.userId);
-    proxyReq.setHeader('X-Request-Id', req.requestId);
+    if (req.userId) {
+      proxyReq.setHeader('X-User-Id', req.userId);
+    }
+    if (req.requestId) {
+      proxyReq.setHeader('X-Request-Id', req.requestId);
+    }
   },
   onError: (err, req, res) => {
     logger.error({
@@ -135,8 +151,12 @@ app.use('/media', validateJWT, createProxyMiddleware({
   changeOrigin: true,
   pathRewrite: { '^/media': '' },
   onProxyReq: (proxyReq, req) => {
-    proxyReq.setHeader('X-User-Id', req.userId);
-    proxyReq.setHeader('X-Request-Id', req.requestId);
+    if (req.userId) {
+      proxyReq.setHeader('X-User-Id', req.userId);
+    }
+    if (req.requestId) {
+      proxyReq.setHeader('X-Request-Id', req.requestId);
+    }
   },
   onError: (err, req, res) => {
     logger.error({
@@ -156,8 +176,12 @@ app.use('/groups', validateJWT, createProxyMiddleware({
   changeOrigin: true,
   pathRewrite: { '^/groups': '' },
   onProxyReq: (proxyReq, req) => {
-    proxyReq.setHeader('X-User-Id', req.userId);
-    proxyReq.setHeader('X-Request-Id', req.requestId);
+    if (req.userId) {
+      proxyReq.setHeader('X-User-Id', req.userId);
+    }
+    if (req.requestId) {
+      proxyReq.setHeader('X-Request-Id', req.requestId);
+    }
   },
   onError: (err, req, res) => {
     logger.error({

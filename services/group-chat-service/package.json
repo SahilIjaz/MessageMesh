@@ -4,6 +4,7 @@
   "description": "MessageMesh Group Chat Service",
   "main": "src/index.js",
   "scripts": {
+    "start": "node src/index.js",
     "dev": "nodemon src/index.js",
     "migrate": "knex migrate:latest",
     "migrate:down": "knex migrate:rollback",
