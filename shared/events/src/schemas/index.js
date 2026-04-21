@@ -95,6 +95,59 @@ const schemas = {
     conversationId: Joi.string().uuid().required(),
     timestamp: Joi.date().required(),
   }),
+
+  GROUP_CREATED: Joi.object({
+    groupId: Joi.string().uuid().required(),
+    name: Joi.string().max(100).required(),
+    createdBy: Joi.string().uuid().required(),
+    memberIds: Joi.array().items(Joi.string().uuid()).required(),
+    timestamp: Joi.date().required(),
+  }),
+
+  GROUP_MEMBER_ADDED: Joi.object({
+    groupId: Joi.string().uuid().required(),
+    userId: Joi.string().uuid().required(),
+    addedBy: Joi.string().uuid().required(),
+    timestamp: Joi.date().required(),
+  }),
+
+  GROUP_MEMBER_REMOVED: Joi.object({
+    groupId: Joi.string().uuid().required(),
+    userId: Joi.string().uuid().required(),
+    removedBy: Joi.string().uuid().required(),
+    timestamp: Joi.date().required(),
+  }),
+
+  GROUP_MESSAGE_SENT: Joi.object({
+    messageId: Joi.string().uuid().required(),
+    groupId: Joi.string().uuid().required(),
+    senderId: Joi.string().uuid().required(),
+    memberIds: Joi.array().items(Joi.string().uuid()).required(),
+    contentPreview: Joi.string().max(100).required(),
+    timestamp: Joi.date().required(),
+  }),
+
+  GROUP_MESSAGE_READ: Joi.object({
+    messageId: Joi.string().uuid().required(),
+    groupId: Joi.string().uuid().required(),
+    readBy: Joi.string().uuid().required(),
+    timestamp: Joi.date().required(),
+  }),
+
+  MEDIA_UPLOADED: Joi.object({
+    fileId: Joi.string().uuid().required(),
+    uploadedBy: Joi.string().uuid().required(),
+    mimeType: Joi.string().required(),
+    fileSize: Joi.number().required(),
+    url: Joi.string().uri().required(),
+    timestamp: Joi.date().required(),
+  }),
+
+  MEDIA_DELETED: Joi.object({
+    fileId: Joi.string().uuid().required(),
+    deletedBy: Joi.string().uuid().required(),
+    timestamp: Joi.date().required(),
+  }),
 };
 
 const validateEvent = (eventName, payload) => {

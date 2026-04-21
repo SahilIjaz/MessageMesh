@@ -13,6 +13,13 @@ const EVENTS = {
   MESSAGE_READ: 'message.read',
   TYPING_STARTED: 'typing.started',
   TYPING_STOPPED: 'typing.stopped',
+  GROUP_CREATED: 'group.created',
+  GROUP_MEMBER_ADDED: 'group.member_added',
+  GROUP_MEMBER_REMOVED: 'group.member_removed',
+  GROUP_MESSAGE_SENT: 'group.message_sent',
+  GROUP_MESSAGE_READ: 'group.message_read',
+  MEDIA_UPLOADED: 'media.uploaded',
+  MEDIA_DELETED: 'media.deleted',
 };
 
 module.exports = EVENTS;
