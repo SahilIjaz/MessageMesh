@@ -12,7 +12,9 @@ router.use(
     changeOrigin: true,
     pathRewrite: { '^/auth': '/auth' },
     onProxyReq: (proxyReq, req) => {
-      proxyReq.setHeader('X-Request-Id', req.requestId);
+      if (req.requestId) {
+        proxyReq.setHeader('X-Request-Id', req.requestId);
+      }
     },
     onError: (err, req, res) => {
       logger.error({
