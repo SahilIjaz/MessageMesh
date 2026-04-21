@@ -16,6 +16,7 @@ const SERVICE_URLS = {
   PRESENCE: process.env.PRESENCE_SERVICE_URL || 'http://presence-service:3004',
   NOTIFICATION: process.env.NOTIFICATION_SERVICE_URL || 'http://notification-service:3005',
   MEDIA: process.env.MEDIA_SERVICE_URL || 'http://media-service:3006',
+  GROUP_CHAT: process.env.GROUP_CHAT_SERVICE_URL || 'http://group-chat-service:3007',
 };
 
 // Middleware
@@ -139,6 +140,27 @@ app.use('/media', validateJWT, createProxyMiddleware({
     res.status(503).json({
       code: 'SERVICE_UNAVAILABLE',
       message: 'Media service temporarily unavailable',
+    });
+  },
+}));
+
+app.use('/groups', validateJWT, createProxyMiddleware({
+  target: SERVICE_URLS.GROUP_CHAT,
+  changeOrigin: true,
+  pathRewrite: { '^/groups': '' },
+  onProxyReq: (proxyReq, req) => {
+    proxyReq.setHeader('X-User-Id', req.userId);
+    proxyReq.setHeader('X-Request-Id', req.requestId);
+  },
+  onError: (err, req, res) => {
+    logger.error({
+      message: 'Group chat service proxy error',
+      error: err.message,
+      requestId: req.requestId,
+    });
+    res.status(503).json({
+      code: 'SERVICE_UNAVAILABLE',
+      message: 'Group chat service temporarily unavailable',
     });
   },
 }));

@@ -146,6 +146,67 @@ services:
     volumes:
       - ./services/presence-service/src:/app/src
 
+  # Group Chat Service
+  group-chat-service:
+    build:
+      context: ./services/group-chat-service
+      dockerfile: Dockerfile
+    container_name: messagemesh-group-chat
+    environment:
+      PORT: 3007
+      NODE_ENV: development
+      DEBUG: 1
+      DATABASE_HOST: postgres
+      DATABASE_PORT: 5432
+      DATABASE_USER: messagemesh
+      DATABASE_PASSWORD: messagemesh
+      DATABASE_NAME: messagemesh
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672
+      REDIS_URL: redis://redis:6379
+    ports:
+      - "3007:3007"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    volumes:
+      - ./services/group-chat-service/src:/app/src
+
+  # Media Service
+  media-service:
+    build:
+      context: ./services/media-service
+      dockerfile: Dockerfile
+    container_name: messagemesh-media
+    environment:
+      PORT: 3006
+      NODE_ENV: development
+      DEBUG: 1
+      DATABASE_HOST: postgres
+      DATABASE_PORT: 5432
+      DATABASE_USER: messagemesh
+      DATABASE_PASSWORD: messagemesh
+      DATABASE_NAME: messagemesh
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672
+      REDIS_URL: redis://redis:6379
+      UPLOAD_DIR: /app/uploads
+      MAX_FILE_SIZE: 10485760
+    ports:
+      - "3006:3006"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    volumes:
+      - ./services/media-service/src:/app/src
+      - media_uploads:/app/uploads
+
   # API Gateway
   api-gateway:
     build:
@@ -162,6 +223,7 @@ services:
       PRESENCE_SERVICE_URL: http://presence-service:3004
       NOTIFICATION_SERVICE_URL: http://notification-service:3005
       MEDIA_SERVICE_URL: http://media-service:3006
+      GROUP_CHAT_SERVICE_URL: http://group-chat-service:3007
       REDIS_URL: redis://redis:6379
     ports:
       - "3000:3000"
@@ -171,6 +233,8 @@ services:
       - user-service
       - message-service
       - presence-service
+      - group-chat-service
+      - media-service
     volumes:
       - ./services/api-gateway/src:/app/src
 
@@ -178,3 +242,4 @@ volumes:
   postgres_data:
   redis_data:
   rabbitmq_data:
+  media_uploads:
