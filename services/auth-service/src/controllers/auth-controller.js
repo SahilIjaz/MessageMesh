@@ -50,18 +50,24 @@ const register = async (req, res, next) => {
     // Store refresh token
     await userModel.updateRefreshToken(user.id, refreshToken);
 
-    // Publish event
-    await publishEvent(eventNames.USER_REGISTERED, {
-      userId: user.id,
-      email: user.email,
-      timestamp: new Date(),
-    });
+    // Publish event (temporarily disabled due to event schema mismatch)
+    try {
+      await publishEvent(eventNames.USER_REGISTERED, {
+        userId: user.id,
+        email: user.email,
+        timestamp: new Date(),
+      });
+    } catch (eventError) {
+      console.error('Event publishing failed (non-blocking):', eventError.message);
+    }
 
     res.status(201).json({
-      userId: user.id,
-      email: user.email,
-      accessToken,
-      refreshToken,
+      user: {
+        id: user.id,
+        email: user.email,
+      },
+      access_token: accessToken,
+      refresh_token: refreshToken,
     });
   } catch (error) {
     next(error);
@@ -98,10 +104,12 @@ const login = async (req, res, next) => {
     await userModel.updateRefreshToken(user.id, refreshToken);
 
     res.status(200).json({
-      userId: user.id,
-      email: user.email,
-      accessToken,
-      refreshToken,
+      user: {
+        id: user.id,
+        email: user.email,
+      },
+      access_token: accessToken,
+      refresh_token: refreshToken,
     });
   } catch (error) {
     next(error);
