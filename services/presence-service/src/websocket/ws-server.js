@@ -71,6 +71,20 @@ const handleConnect = async (ws, userId) => {
     timestamp: now,
   });
 
+  // Flush offline queue
+  const queueKey = `offline_queue:${userId}`;
+  const pending = await redis.lRange(queueKey, 0, -1);
+  if (pending.length > 0) {
+    for (const item of pending) {
+      ws.send(item);
+    }
+    await redis.del(queueKey);
+    logger.info({ message: 'Flushed offline queue', userId, count: pending.length, service: 'presence-service' });
+  }
+
+  // Broadcast online status to peers
+  broadcastToAll({ type: 'user_online', userId }, userId);
+
   logger.info({ message: 'User connected', userId, service: 'presence-service' });
 
   ws.on('message', async (data) => {
@@ -94,6 +108,9 @@ const handleConnect = async (ws, userId) => {
         userId,
         lastSeen: new Date(lastSeen),
       });
+
+      // Broadcast offline status to peers
+      broadcastToAll({ type: 'user_offline', userId, lastSeen }, userId);
 
       logger.info({ message: 'User disconnected', userId, service: 'presence-service' });
     } catch (error) {
