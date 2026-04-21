@@ -61,7 +61,16 @@ const startServer = async () => {
   try {
     ensureUploadDir();
     await runMigrations();
-    await initEventBus();
+
+    try {
+      await Promise.race([
+        initEventBus(),
+        new Promise((_, reject) => setTimeout(() => reject(new Error('Event bus initialization timeout')), 5000))
+      ]);
+      logger.info('Event bus initialized');
+    } catch (eventBusError) {
+      logger.warn(`Event bus connection failed: ${eventBusError.message}, continuing without event bus`);
+    }
 
     app.listen(PORT, () => {
       logger.info(`Media Service listening on port ${PORT}`);
