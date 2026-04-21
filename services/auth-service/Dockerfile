@@ -3,4 +3,4 @@ WORKDIR /app
 COPY . .
 RUN npm install --omit=dev
 EXPOSE 3001
-CMD ["node", "src/index.js"]
+CMD ["node", "services/auth-service/src/index.js"]

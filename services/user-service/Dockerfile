@@ -3,4 +3,4 @@ WORKDIR /app
 COPY . .
 RUN npm install --omit=dev
 EXPOSE 3000
-CMD ["node", "src/index.js"]
+CMD ["node", "services/user-service/src/index.js"]
