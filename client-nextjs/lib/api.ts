@@ -67,7 +67,7 @@ export const api = {
   },
 
   async getProfile(token: string) {
-    const res = await fetch(`${API_BASE_URL}/users/profile`, {
+    const res = await fetch(`${USER_SERVICE_URL}/profile`, {
       headers: { Authorization: `Bearer ${token}` },
     });
     if (!res.ok) throw new Error('Failed to get profile');
@@ -75,7 +75,7 @@ export const api = {
   },
 
   async updateProfile(token: string, data: Partial<User>) {
-    const res = await fetch(`${API_BASE_URL}/users/profile`, {
+    const res = await fetch(`${USER_SERVICE_URL}/profile`, {
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',
@@ -88,7 +88,7 @@ export const api = {
   },
 
   async getConversations(token: string) {
-    const res = await fetch(`${API_BASE_URL}/messages/conversations`, {
+    const res = await fetch(`${MESSAGE_SERVICE_URL}/conversations`, {
       headers: { Authorization: `Bearer ${token}` },
     });
     if (!res.ok) throw new Error('Failed to get conversations');
@@ -97,7 +97,7 @@ export const api = {
 
   async getMessages(token: string, conversationId: string) {
     const res = await fetch(
-      `${API_BASE_URL}/messages/conversations/${conversationId}/messages`,
+      `${MESSAGE_SERVICE_URL}/conversations/${conversationId}/messages`,
       {
         headers: { Authorization: `Bearer ${token}` },
       }
@@ -112,7 +112,7 @@ export const api = {
     content: string
   ) {
     const res = await fetch(
-      `${API_BASE_URL}/messages/conversations/${conversationId}/messages`,
+      `${MESSAGE_SERVICE_URL}/conversations/${conversationId}/messages`,
       {
         method: 'POST',
         headers: {
@@ -127,7 +127,7 @@ export const api = {
   },
 
   async searchUsers(token: string, query: string) {
-    const res = await fetch(`${API_BASE_URL}/users/search?q=${query}`, {
+    const res = await fetch(`${USER_SERVICE_URL}/search?q=${query}`, {
       headers: { Authorization: `Bearer ${token}` },
     });
     if (!res.ok) throw new Error('Failed to search users');
