@@ -1,5 +1,6 @@
 require('dotenv').config();
 const express = require('express');
+const cors = require('cors');
 const fs = require('fs');
 const path = require('path');
 const { getConnection, closeConnection } = require('./database/connection');
@@ -15,6 +16,7 @@ const PORT = process.env.PORT || 3006;
 const uploadDir = process.env.UPLOAD_DIR || path.join(__dirname, '../uploads');
 
 app.use(express.json());
+app.use(cors());
 app.use(requestIdMiddleware);
 
 const runMigrations = async () => {

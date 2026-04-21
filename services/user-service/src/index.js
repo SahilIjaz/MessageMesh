@@ -1,5 +1,6 @@
 require('dotenv').config();
 const express = require('express');
+const cors = require('cors');
 const { errorHandler, requestIdMiddleware } = require('@messagemesh/middleware');
 const { initEventBus } = require('@messagemesh/events').eventBus;
 const { logger } = require('@messagemesh/middleware');
@@ -12,6 +13,7 @@ const PORT = process.env.PORT || 3002;
 
 // Middleware
 app.use(express.json());
+app.use(cors());
 app.use(requestIdMiddleware);
 
 // Health check

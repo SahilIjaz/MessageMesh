@@ -1,6 +1,7 @@
 require('dotenv').config();
 const http = require('http');
 const express = require('express');
+const cors = require('cors');
 const { errorHandler, requestIdMiddleware } = require('@messagemesh/middleware');
 const { initEventBus, closeEventBus } = require('@messagemesh/events').eventBus;
 const logger = require('@messagemesh/middleware').logger;
@@ -14,6 +15,7 @@ const app = express();
 const PORT = process.env.PORT || 3004;
 
 app.use(express.json());
+app.use(cors());
 app.use(requestIdMiddleware);
 
 app.get('/health', (req, res) => {

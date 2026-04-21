@@ -1,5 +1,6 @@
 require('dotenv').config();
 const express = require('express');
+const cors = require('cors');
 const { getConnection, closeConnection } = require('./database/connection');
 const { requestIdMiddleware } = require('@messagemesh/middleware');
 const { validateJWT } = require('@messagemesh/middleware');
@@ -13,6 +14,7 @@ const app = express();
 const PORT = process.env.PORT || 3005;
 
 app.use(express.json());
+app.use(cors());
 app.use(requestIdMiddleware);
 
 const runMigrations = async () => {
