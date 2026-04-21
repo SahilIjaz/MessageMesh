@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MessageMesh - Chat Application</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+                'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+                sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            max-width: 1400px;
+            width: 100%;
+            height: 90vh;
+        }
+
+        .panel {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .panel-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .panel-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #333;
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            font-family: inherit;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 5px rgba(102, 126, 234, 0.4);
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: transform 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .message-box {
+            background: #f5f5f5;
+            border-left: 4px solid #667eea;
+            padding: 12px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            font-size: 13px;
+            word-break: break-word;
+        }
+
+        .message-box.success {
+            border-left-color: #10b981;
+            background: #ecfdf5;
+        }
+
+        .message-box.error {
+            border-left-color: #ef4444;
+            background: #fef2f2;
+            color: #991b1b;
+        }
+
+        .message-box.info {
+            border-left-color: #3b82f6;
+            background: #eff6ff;
+        }
+
+        .message-time {
+            font-size: 11px;
+            color: #999;
+            margin-top: 5px;
+        }
+
+        .user-item, .conversation-item {
+            background: #f9f9f9;
+            padding: 10px;
+            margin-bottom: 8px;
+            border-radius: 5px;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .user-item:hover, .conversation-item:hover {
+            background: #f0f0f0;
+            border-color: #667eea;
+        }
+
+        .user-item.selected, .conversation-item.selected {
+            background: #e8ebf5;
+            border-color: #667eea;
+        }
+
+        .user-email, .conversation-id {
+            font-weight: 500;
+            color: #333;
+            margin-bottom: 3px;
+        }
+
+        .user-status, .conversation-meta {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .status-badge {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+
+        .status-badge.online {
+            background: #10b981;
+        }
+
+        .status-badge.offline {
+            background: #9ca3af;
+        }
+
+        .chat-message {
+            margin-bottom: 12px;
+            padding: 10px;
+            background: #f9f9f9;
+            border-radius: 8px;
+            border-left: 3px solid #667eea;
+        }
+
+        .chat-message-header {
+            font-weight: 500;
+            color: #333;
+            margin-bottom: 5px;
+            font-size: 12px;
+        }
+
+        .chat-message-content {
+            color: #555;
+            word-wrap: break-word;
+        }
+
+        .chat-message-time {
+            font-size: 11px;
+            color: #999;
+            margin-top: 5px;
+        }
+
+        .tabs {
+            display: flex;
+            border-bottom: 2px solid #e5e7eb;
+            margin-bottom: 20px;
+        }
+
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            color: #666;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .tab.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            opacity: 0.9;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            margin-top: 5px;
+        }
+
+        .service-status {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .service-item {
+            background: #f9f9f9;
+            padding: 10px;
+            border-radius: 5px;
+            border-left: 3px solid #ddd;
+            font-size: 13px;
+        }
+
+        .service-item.healthy {
+            border-left-color: #10b981;
+            background: #ecfdf5;
+        }
+
+        .service-item.unhealthy {
+            border-left-color: #ef4444;
+            background: #fef2f2;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                grid-template-columns: 1fr;
+                height: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Left Panel: Authentication & User Management -->
+        <div class="panel">
+            <div class="panel-header">📱 Authentication & User Management</div>
+            <div class="panel-content">
+                <div class="tabs">
+                    <div class="tab active" onclick="switchTab(event, 'auth')">Auth</div>
+                    <div class="tab" onclick="switchTab(event, 'profile')">Profile</div>
+                    <div class="tab" onclick="switchTab(event, 'users')">Users</div>
+                </div>
+
+                <!-- Auth Tab -->
+                <div id="auth" class="tab-content active">
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" id="authEmail" placeholder="test@example.com">
+                    </div>
+                    <div class="form-group">
+                        <label>Password</label>
+                        <input type="password" id="authPassword" placeholder="password123">
+                    </div>
+                    <div class="button-group">
+                        <button onclick="registerUser()">Register</button>
+                        <button onclick="loginUser()">Login</button>
+                    </div>
+                    <div id="authResponse"></div>
+                </div>
+
+                <!-- Profile Tab -->
+                <div id="profile" class="tab-content">
+                    <div class="form-group">
+                        <label>Full Name</label>
+                        <input type="text" id="fullName" placeholder="John Doe">
+                    </div>
+                    <div class="form-group">
+                        <label>Bio</label>
+                        <textarea id="bio" placeholder="Write a short bio..." rows="3"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Avatar URL</label>
+                        <input type="text" id="avatarUrl" placeholder="https://example.com/avatar.jpg">
+                    </div>
+                    <button onclick="updateProfile()">Update Profile</button>
+                    <div id="profileResponse"></div>
+                </div>
+
+                <!-- Users Tab -->
+                <div id="users" class="tab-content">
+                    <div class="form-group">
+                        <label>Search Users</label>
+                        <input type="text" id="searchQuery" placeholder="Enter email or name..." onkeyup="searchUsers()">
+                    </div>
+                    <div id="usersList"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Panel: Messaging & Service Status -->
+        <div class="panel">
+            <div class="panel-header">💬 Messaging & Service Status</div>
+            <div class="panel-content">
+                <div class="tabs">
+                    <div class="tab active" onclick="switchTab(event, 'messaging')">Messaging</div>
+                    <div class="tab" onclick="switchTab(event, 'services')">Services</div>
+                    <div class="tab" onclick="switchTab(event, 'media')">Media</div>
+                </div>
+
+                <!-- Messaging Tab -->
+                <div id="messaging" class="tab-content active">
+                    <div class="form-group">
+                        <label>Select User to Message</label>
+                        <select id="selectedUser">
+                            <option value="">-- Select a user --</option>
+                        </select>
+                    </div>
+                    <button onclick="startConversation()">Start Conversation</button>
+
+                    <div style="margin-top: 15px; border-top: 1px solid #eee; padding-top: 15px;">
+                        <label>Conversation Messages</label>
+                        <select id="selectedConversation">
+                            <option value="">-- Select a conversation --</option>
+                        </select>
+                        <div id="conversationMessages" style="margin-top: 10px; max-height: 200px; overflow-y: auto;"></div>
+                    </div>
+
+                    <div style="margin-top: 15px; border-top: 1px solid #eee; padding-top: 15px;">
+                        <label>Send Message</label>
+                        <textarea id="messageContent" placeholder="Type your message..." rows="3"></textarea>
+                        <button onclick="sendMessage()" style="margin-top: 10px;">Send Message</button>
+                    </div>
+                    <div id="messagingResponse"></div>
+                </div>
+
+                <!-- Services Tab -->
+                <div id="services" class="tab-content">
+                    <button onclick="checkAllServices()" style="margin-bottom: 15px;">Check All Services</button>
+                    <div id="servicesStatus"></div>
+                </div>
+
+                <!-- Media Tab -->
+                <div id="media" class="tab-content">
+                    <div class="form-group">
+                        <label>Upload File</label>
+                        <input type="file" id="fileInput" accept="image/*,video/*,.pdf">
+                    </div>
+                    <button onclick="uploadFile()">Upload</button>
+                    <div id="mediaResponse"></div>
+
+                    <div style="margin-top: 15px; border-top: 1px solid #eee; padding-top: 15px;">
+                        <label>Your Files</label>
+                        <div id="filesList"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:3000';
+        let authToken = localStorage.getItem('authToken');
+        let currentUser = localStorage.getItem('currentUser') ? JSON.parse(localStorage.getItem('currentUser')) : null;
+
+        // Tab switching
+        function switchTab(e, tabName) {
+            e.target.parentElement.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            e.target.classList.add('active');
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            document.getElementById(tabName).classList.add('active');
+        }
+
+        // Helper: Make API requests
+        async function apiCall(method, endpoint, body = null) {
+            const headers = {
+                'Content-Type': 'application/json',
+            };
+            if (authToken) {
+                headers['Authorization'] = `Bearer ${authToken}`;
+            }
+
+            const options = {
+                method,
+                headers,
+            };
+            if (body) {
+                options.body = JSON.stringify(body);
+            }
+
+            try {
+                const response = await fetch(`${API_BASE_URL}${endpoint}`, options);
+                const data = await response.json();
+                return { status: response.status, data };
+            } catch (error) {
+                return { status: 0, data: { error: error.message } };
+            }
+        }
+
+        // Helper: Display message
+        function displayMessage(elementId, message, type = 'info') {
+            const element = document.getElementById(elementId);
+            const timestamp = new Date().toLocaleTimeString();
+            element.innerHTML = `<div class="message-box ${type}">${message}<div class="message-time">${timestamp}</div></div>`;
+        }
+
+        // Authentication
+        async function registerUser() {
+            const email = document.getElementById('authEmail').value;
+            const password = document.getElementById('authPassword').value;
+
+            if (!email || !password) {
+                displayMessage('authResponse', 'Please fill in all fields', 'error');
+                return;
+            }
+
+            const { status, data } = await apiCall('POST', '/auth/register', { email, password });
+            if (status === 201 || status === 200) {
+                displayMessage('authResponse', `✓ Registration successful! User ID: ${data.userId}`, 'success');
+            } else {
+                displayMessage('authResponse', `✗ Registration failed: ${data.message || data.error}`, 'error');
+            }
+        }
+
+        async function loginUser() {
+            const email = document.getElementById('authEmail').value;
+            const password = document.getElementById('authPassword').value;
+
+            if (!email || !password) {
+                displayMessage('authResponse', 'Please fill in all fields', 'error');
+                return;
+            }
+
+            const { status, data } = await apiCall('POST', '/auth/login', { email, password });
+            if (status === 200 && data.accessToken) {
+                authToken = data.accessToken;
+                currentUser = { id: data.userId, email };
+                localStorage.setItem('authToken', authToken);
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                displayMessage('authResponse', `✓ Login successful! User: ${email}`, 'success');
+                loadUsers();
+                loadConversations();
+            } else {
+                displayMessage('authResponse', `✗ Login failed: ${data.message || data.error}`, 'error');
+            }
+        }
+
+        // Profile Management
+        async function updateProfile() {
+            if (!authToken) {
+                displayMessage('profileResponse', 'Please login first', 'error');
+                return;
+            }
+
+            const fullName = document.getElementById('fullName').value;
+            const bio = document.getElementById('bio').value;
+            const avatarUrl = document.getElementById('avatarUrl').value;
+
+            const { status, data } = await apiCall('PUT', '/users/profile', {
+                fullName,
+                bio,
+                avatarUrl
+            });
+
+            if (status === 200) {
+                displayMessage('profileResponse', '✓ Profile updated successfully!', 'success');
+            } else {
+                displayMessage('profileResponse', `✗ Update failed: ${data.message || data.error}`, 'error');
+            }
+        }
+
+        // Users Management
+        async function loadUsers() {
+            if (!authToken) return;
+
+            const { status, data } = await apiCall('GET', '/users');
+            if (status === 200 && data.users) {
+                const userSelect = document.getElementById('selectedUser');
+                userSelect.innerHTML = '<option value="">-- Select a user --</option>';
+                const usersList = document.getElementById('usersList');
+                usersList.innerHTML = '';
+
+                data.users.forEach(user => {
+                    if (user.id !== currentUser.id) {
+                        const option = document.createElement('option');
+                        option.value = user.id;
+                        option.textContent = user.email;
+                        userSelect.appendChild(option);
+
+                        const userItem = document.createElement('div');
+                        userItem.className = 'user-item';
+                        userItem.innerHTML = `
+                            <div class="user-email">${user.email}</div>
+                            <div class="user-status">
+                                <span class="status-badge ${user.isOnline ? 'online' : 'offline'}"></span>
+                                ${user.isOnline ? 'Online' : 'Offline'}
+                            </div>
+                        `;
+                        usersList.appendChild(userItem);
+                    }
+                });
+            }
+        }
+
+        async function searchUsers() {
+            const query = document.getElementById('searchQuery').value;
+            if (query.length < 2) {
+                loadUsers();
+                return;
+            }
+
+            // Client-side search for now
+            const allUsers = document.querySelectorAll('.user-item');
+            allUsers.forEach(user => {
+                const email = user.querySelector('.user-email').textContent;
+                user.style.display = email.includes(query) ? 'block' : 'none';
+            });
+        }
+
+        // Messaging
+        async function startConversation() {
+            if (!authToken) {
+                displayMessage('messagingResponse', 'Please login first', 'error');
+                return;
+            }
+
+            const userId = document.getElementById('selectedUser').value;
+            if (!userId) {
+                displayMessage('messagingResponse', 'Please select a user', 'error');
+                return;
+            }
+
+            const { status, data } = await apiCall('POST', '/messages/conversations', {
+                participantId: userId
+            });
+
+            if (status === 201 || status === 200) {
+                displayMessage('messagingResponse', `✓ Conversation started! ID: ${data.conversationId}`, 'success');
+                loadConversations();
+            } else {
+                displayMessage('messagingResponse', `✗ Failed: ${data.message || data.error}`, 'error');
+            }
+        }
+
+        async function loadConversations() {
+            if (!authToken) return;
+
+            const { status, data } = await apiCall('GET', '/messages/conversations');
+            if (status === 200 && data.conversations) {
+                const conversationSelect = document.getElementById('selectedConversation');
+                conversationSelect.innerHTML = '<option value="">-- Select a conversation --</option>';
+
+                data.conversations.forEach(conv => {
+                    const option = document.createElement('option');
+                    option.value = conv.id;
+                    option.textContent = `${conv.participantEmail}`;
+                    conversationSelect.appendChild(option);
+                });
+
+                conversationSelect.onchange = () => loadConversationMessages(conversationSelect.value);
+            }
+        }
+
+        async function loadConversationMessages(conversationId) {
+            if (!conversationId) return;
+
+            const { status, data } = await apiCall('GET', `/messages/conversations/${conversationId}`);
+            if (status === 200 && data.messages) {
+                const messagesDiv = document.getElementById('conversationMessages');
+                messagesDiv.innerHTML = '';
+
+                data.messages.forEach(msg => {
+                    const msgDiv = document.createElement('div');
+                    msgDiv.className = 'chat-message';
+                    msgDiv.innerHTML = `
+                        <div class="chat-message-header">${msg.senderEmail}</div>
+                        <div class="chat-message-content">${msg.content}</div>
+                        <div class="chat-message-time">${new Date(msg.createdAt).toLocaleString()}</div>
+                    `;
+                    messagesDiv.appendChild(msgDiv);
+                });
+                messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            }
+        }
+
+        async function sendMessage() {
+            if (!authToken) {
+                displayMessage('messagingResponse', 'Please login first', 'error');
+                return;
+            }
+
+            const conversationId = document.getElementById('selectedConversation').value;
+            const content = document.getElementById('messageContent').value;
+
+            if (!conversationId) {
+                displayMessage('messagingResponse', 'Please select a conversation', 'error');
+                return;
+            }
+
+            if (!content.trim()) {
+                displayMessage('messagingResponse', 'Please enter a message', 'error');
+                return;
+            }
+
+            const { status, data } = await apiCall('POST', `/messages/conversations/${conversationId}/messages`, {
+                content
+            });
+
+            if (status === 201 || status === 200) {
+                document.getElementById('messageContent').value = '';
+                displayMessage('messagingResponse', '✓ Message sent!', 'success');
+                loadConversationMessages(conversationId);
+            } else {
+                displayMessage('messagingResponse', `✗ Failed: ${data.message || data.error}`, 'error');
+            }
+        }
+
+        // Services Status
+        async function checkAllServices() {
+            const services = [
+                { name: 'Auth Service', port: 3001 },
+                { name: 'User Service', port: 3002 },
+                { name: 'Message Service', port: 3003 },
+                { name: 'Presence Service', port: 3004 },
+                { name: 'Notification Service', port: 3005 },
+                { name: 'Media Service', port: 3006 },
+                { name: 'API Gateway', port: 3000 },
+            ];
+
+            const statusDiv = document.getElementById('servicesStatus');
+            statusDiv.innerHTML = '<div style="text-align: center;"><div class="spinner"></div> Checking services...</div>';
+
+            const results = await Promise.all(services.map(async (service) => {
+                try {
+                    const response = await fetch(`http://localhost:${service.port}/health`);
+                    const data = await response.json();
+                    return { ...service, healthy: response.ok, status: data.status };
+                } catch {
+                    return { ...service, healthy: false, status: 'unreachable' };
+                }
+            }));
+
+            statusDiv.innerHTML = '<div class="service-status">' +
+                results.map(s => `
+                    <div class="service-item ${s.healthy ? 'healthy' : 'unhealthy'}">
+                        <strong>${s.name}</strong><br>
+                        Port: ${s.port}<br>
+                        Status: ${s.healthy ? '✓ Healthy' : '✗ Unhealthy'}
+                    </div>
+                `).join('') +
+                '</div>';
+        }
+
+        // Media
+        async function uploadFile() {
+            if (!authToken) {
+                displayMessage('mediaResponse', 'Please login first', 'error');
+                return;
+            }
+
+            const fileInput = document.getElementById('fileInput');
+            if (!fileInput.files.length) {
+                displayMessage('mediaResponse', 'Please select a file', 'error');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/media/upload`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`,
+                    },
+                    body: formData
+                });
+                const data = await response.json();
+
+                if (response.ok) {
+                    displayMessage('mediaResponse', `✓ File uploaded! ID: ${data.fileId}`, 'success');
+                    fileInput.value = '';
+                    loadFiles();
+                } else {
+                    displayMessage('mediaResponse', `✗ Upload failed: ${data.message || data.error}`, 'error');
+                }
+            } catch (error) {
+                displayMessage('mediaResponse', `✗ Error: ${error.message}`, 'error');
+            }
+        }
+
+        async function loadFiles() {
+            if (!authToken) return;
+
+            const { status, data } = await apiCall('GET', '/media/files');
+            if (status === 200 && data.files) {
+                const filesList = document.getElementById('filesList');
+                filesList.innerHTML = data.files.map(file => `
+                    <div class="message-box">
+                        <strong>${file.originalName}</strong><br>
+                        Size: ${(file.fileSize / 1024).toFixed(2)} KB<br>
+                        <a href="${file.url}" target="_blank">View File</a>
+                    </div>
+                `).join('');
+            }
+        }
+
+        // Initialize
+        window.addEventListener('load', () => {
+            if (authToken) {
+                loadUsers();
+                loadConversations();
+                loadFiles();
+            }
+            checkAllServices();
+        });
+    </script>
+</body>
+</html>

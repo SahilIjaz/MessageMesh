@@ -1,5 +1,13 @@
 {
-  "name": "client",
-  "version": "0.1.0",
-  "private": true
+  "name": "messagemesh-client",
+  "version": "1.0.0",
+  "description": "MessageMesh Chat Application UI",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": ["chat", "messaging"],
+  "author": "",
+  "license": "ISC"
 }
