@@ -1,7 +1,7 @@
 # MessageMesh — Completion Status
 
-**Last Updated:** April 20, 2026  
-**Total Phases Completed:** 2 out of 5  
+**Last Updated:** April 21, 2026  
+**Total Phases Completed:** 2.5 out of 5  
 **Code Files Created:** 50+
 
 ---
@@ -38,25 +38,27 @@
 
 ## Phase 2: Real-Time Communication
 
-### Week 1: WebSocket & Presence Service 🔲 TODO
-- [ ] Presence Service implementation
-  - Online/offline status tracking
-  - Last seen timestamps
-  - WebSocket connection management
+### Week 1: WebSocket & Presence Service ✅ COMPLETE
+- ✅ Presence Service (port 3004)
+  - Online/offline status tracking via Redis TTL
+  - Last seen timestamps (persistent)
+  - WebSocket connection management (connection registry)
+  - Heartbeat-based keep-alive (300s TTL)
   
-- [ ] WebSocket integration
-  - Real-time message delivery
-  - Event stream synchronization
-  - Connection pooling
+- ✅ WebSocket integration
+  - Real-time message delivery (MESSAGE_SENT consumer)
+  - Event stream synchronization (RabbitMQ + WebSocket)
+  - Connection pooling via Redis
   
-- [ ] Typing indicators
-  - Broadcast to conversation partner
-  - Timeout handling
+- ✅ Typing indicators
+  - Broadcast to conversation partner (direct WS registry lookup)
+  - Timeout handling (10s TTL)
+  - Real-time presence events (USER_ONLINE, USER_OFFLINE)
 
-### Week 2: Real-Time Message Delivery 🔲 TODO
-- [ ] Real-time status updates
+### Week 2: Real-Time Message Delivery & Reconnection 🔲 TODO
 - [ ] Connection reconnection strategy
 - [ ] Message queuing during offline periods
+- [ ] Presence aggregation across multiple service instances
 
 ---
 
@@ -102,8 +104,8 @@
 | Auth Service | ✅ Complete | Register, login, refresh, logout |
 | User Service | ✅ Complete | Profiles, search, connections |
 | Message Service | ✅ Complete | 1-to-1 messaging, history, status |
-| API Gateway | ✅ Complete | Routing, rate limiting, JWT |
-| Presence Service | 🔲 Pending | Phase 2 Week 1 |
+| API Gateway | ✅ Complete | Routing, rate limiting, JWT, WebSocket |
+| Presence Service | ✅ Complete | Online/offline tracking, WebSocket, typing indicators |
 | Notification Service | 🔲 Pending | Phase 4 |
 | Media Service | 🔲 Pending | Phase 3 |
 
