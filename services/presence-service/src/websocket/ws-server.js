@@ -30,7 +30,32 @@ const initWsServer = (httpServer) => {
     });
   });
 
+  // Phantom connection detector — every 60s check for expired TTL
+  setInterval(async () => {
+    const redis = getRedis();
+    for (const [userId, ws] of connectionRegistry) {
+      if (ws.readyState !== WebSocket.OPEN) {
+        connectionRegistry.delete(userId);
+        continue;
+      }
+      const alive = await redis.get(`presence:${userId}`);
+      if (!alive) {
+        logger.warn({ message: 'Phantom connection detected, terminating', userId, service: 'presence-service' });
+        ws.terminate();
+      }
+    }
+  }, 60000);
+
   logger.info({ message: 'WebSocket server initialized', service: 'presence-service' });
+};
+
+const broadcastToAll = (data, exceptUserId = null) => {
+  const payload = JSON.stringify(data);
+  for (const [uid, socket] of connectionRegistry) {
+    if (uid !== exceptUserId && socket.readyState === WebSocket.OPEN) {
+      socket.send(payload);
+    }
+  }
 };
 
 const handleConnect = async (ws, userId) => {
