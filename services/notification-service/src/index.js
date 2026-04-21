@@ -44,7 +44,11 @@ app.use((err, req, res, next) => {
 
 const startServer = async () => {
   try {
-    await runMigrations();
+    try {
+      await runMigrations();
+    } catch (migrationError) {
+      logger.warn(`Database migrations failed: ${migrationError.message}, continuing without migrations`);
+    }
 
     try {
       await Promise.race([
