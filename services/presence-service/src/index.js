@@ -42,11 +42,22 @@ const startServer = async () => {
     await connectRedis();
     logger.info({ message: 'Redis connected', service: 'presence-service' });
 
-    await initEventBus();
-    logger.info({ message: 'Event bus initialized', service: 'presence-service' });
+    try {
+      await Promise.race([
+        initEventBus(),
+        new Promise((_, reject) => setTimeout(() => reject(new Error('Event bus initialization timeout')), 5000))
+      ]);
+      logger.info({ message: 'Event bus initialized', service: 'presence-service' });
 
-    await initEventConsumers();
-    logger.info({ message: 'Event consumers initialized', service: 'presence-service' });
+      await initEventConsumers();
+      logger.info({ message: 'Event consumers initialized', service: 'presence-service' });
+    } catch (eventBusError) {
+      logger.warn({
+        message: 'Event bus connection failed, continuing without event bus',
+        error: eventBusError.message,
+        service: 'presence-service',
+      });
+    }
 
     server = http.createServer(app);
     initWsServer(server);
