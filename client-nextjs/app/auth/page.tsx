@@ -5,6 +5,26 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
 import Link from 'next/link';
 
+const isValidEmail = (email: string): boolean => {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
+};
+
+const getPasswordValidation = (password: string) => {
+  const hasUppercase = /[A-Z]/.test(password);
+  const hasLowercase = /[a-z]/.test(password);
+  const hasNumbers = /\d/.test(password);
+  const isLongEnough = password.length >= 8;
+
+  return {
+    hasUppercase,
+    hasLowercase,
+    hasNumbers,
+    isLongEnough,
+    isValid: hasUppercase && hasLowercase && hasNumbers && isLongEnough,
+  };
+};
+
 export default function AuthPage() {
   const router = useRouter();
   const { login, register } = useAuth();
@@ -13,6 +33,9 @@ export default function AuthPage() {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+
+  const emailValid = email === '' || isValidEmail(email);
+  const passwordValidation = getPasswordValidation(password);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
