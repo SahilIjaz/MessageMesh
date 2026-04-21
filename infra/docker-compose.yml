@@ -71,6 +71,7 @@ services:
       JWT_SECRET: your-jwt-secret-key-change-in-prod
     ports:
       - "3001:3001"
+    restart: on-failure
     depends_on:
       postgres:
         condition: service_healthy
@@ -93,6 +94,7 @@ services:
       AUTH_SERVICE_URL: http://auth-service:3001
     ports:
       - "3002:3002"
+    restart: on-failure
     depends_on:
       postgres:
         condition: service_healthy
@@ -116,6 +118,7 @@ services:
       USER_SERVICE_URL: http://user-service:3002
     ports:
       - "3003:3003"
+    restart: on-failure
     depends_on:
       postgres:
         condition: service_healthy
@@ -157,6 +160,7 @@ services:
       SMTP_PORT: 1025
     ports:
       - "3005:3005"
+    restart: on-failure
     depends_on:
       postgres:
         condition: service_healthy
