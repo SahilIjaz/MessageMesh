@@ -47,7 +47,7 @@ const startServer = async () => {
     try {
       await runMigrations();
     } catch (migrationError) {
-      logger.warn(`Database migrations failed: ${migrationError.message}, continuing without migrations`);
+      logger.warn(`Database migrations failed: ${migrationError.message}, continuing`);
     }
 
     try {
