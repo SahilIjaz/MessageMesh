@@ -1,4 +1,7 @@
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+const AUTH_SERVICE_URL = 'http://localhost:3001';
+const MESSAGE_SERVICE_URL = 'http://localhost:3003';
+const USER_SERVICE_URL = 'http://localhost:3002';
 
 export interface AuthResponse {
   access_token: string;
