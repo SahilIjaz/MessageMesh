@@ -151,7 +151,13 @@ const schemas = {
 };
 
 const validateEvent = (eventName, payload) => {
-  const schema = schemas[eventName];
+  const schemaKey = Object.keys(schemas).find(
+    key => schemas[key] === schemas[eventName] || key === eventName
+  );
+
+  const normalizedKey = eventName.toUpperCase().replace(/\./g, '_');
+  const schema = schemas[normalizedKey] || schemas[eventName];
+
   if (!schema) {
     throw new Error(`Unknown event: ${eventName}`);
   }
