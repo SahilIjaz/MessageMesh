@@ -43,8 +43,18 @@ app.use((err, req, res, next) => {
 const startServer = async () => {
   try {
     await runMigrations();
-    await initEventBus();
-    await initEventConsumers();
+
+    try {
+      await Promise.race([
+        initEventBus(),
+        new Promise((_, reject) => setTimeout(() => reject(new Error('Event bus initialization timeout')), 5000))
+      ]);
+      logger.info('Event bus initialized');
+      await initEventConsumers();
+      logger.info('Event consumers initialized');
+    } catch (eventBusError) {
+      logger.warn(`Event bus connection failed: ${eventBusError.message}, continuing without event bus`);
+    }
 
     app.listen(PORT, () => {
       logger.info(`Notification Service listening on port ${PORT}`);
