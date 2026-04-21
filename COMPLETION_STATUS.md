@@ -198,12 +198,14 @@
 
 | Metric | Value |
 |--------|-------|
-| Services Completed | 4/7 |
-| Database Tables | 5 |
-| API Endpoints | 15+ |
-| Code Files | 35+ |
-| Documentation Pages | 8 |
-| Lines of Code | 3000+ |
+| Services Completed | 5/7 |
+| Database Tables | 5 (PostgreSQL) |
+| Redis Keys | Presence + Typing indicators |
+| API Endpoints | 17+ |
+| WebSocket Routes | 1 (/presence) |
+| Code Files | 44+ |
+| Documentation Pages | 9 |
+| Lines of Code | 3900+ |
 | Test Coverage | Pending (Phase 5) |
 
 ---
