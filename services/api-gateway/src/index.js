@@ -83,6 +83,7 @@ app.use('/presence', validateJWT, createProxyMiddleware({
   target: SERVICE_URLS.PRESENCE,
   changeOrigin: true,
   pathRewrite: { '^/presence': '' },
+  ws: true,
   onProxyReq: (proxyReq, req) => {
     proxyReq.setHeader('X-User-Id', req.userId);
     proxyReq.setHeader('X-Request-Id', req.requestId);

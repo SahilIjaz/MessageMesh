@@ -123,6 +123,29 @@ services:
     volumes:
       - ./services/message-service/src:/app/src
 
+  # Presence Service
+  presence-service:
+    build:
+      context: ./services/presence-service
+      dockerfile: Dockerfile
+    container_name: messagemesh-presence
+    environment:
+      PORT: 3004
+      NODE_ENV: development
+      DEBUG: 1
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672
+      REDIS_URL: redis://redis:6379
+      JWT_SECRET: dev-jwt-secret
+    ports:
+      - "3004:3004"
+    depends_on:
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    volumes:
+      - ./services/presence-service/src:/app/src
+
   # API Gateway
   api-gateway:
     build:
@@ -147,6 +170,7 @@ services:
       - auth-service
       - user-service
       - message-service
+      - presence-service
     volumes:
       - ./services/api-gateway/src:/app/src
 
