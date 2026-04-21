@@ -58,8 +58,8 @@ services:
   # Auth Service
   auth-service:
     build:
-      context: ./services/auth-service
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: services/auth-service/Dockerfile
     container_name: messagemesh-auth
     environment:
       PORT: 3001
@@ -83,8 +83,8 @@ services:
   # User Service
   user-service:
     build:
-      context: ./services/user-service
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: services/user-service/Dockerfile
     container_name: messagemesh-user
     environment:
       PORT: 3002
@@ -108,8 +108,8 @@ services:
   # Message Service
   message-service:
     build:
-      context: ./services/message-service
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: services/message-service/Dockerfile
     container_name: messagemesh-message
     environment:
       PORT: 3003
@@ -133,8 +133,8 @@ services:
   # Presence Service
   presence-service:
     build:
-      context: ./services/presence-service
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: services/presence-service/Dockerfile
     container_name: messagemesh-presence
     environment:
       PORT: 3004
@@ -156,8 +156,8 @@ services:
   # Group Chat Service
   group-chat-service:
     build:
-      context: ./services/group-chat-service
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: services/group-chat-service/Dockerfile
     container_name: messagemesh-group-chat
     environment:
       PORT: 3007
@@ -185,8 +185,8 @@ services:
   # Media Service
   media-service:
     build:
-      context: ./services/media-service
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: services/media-service/Dockerfile
     container_name: messagemesh-media
     environment:
       PORT: 3006
@@ -217,8 +217,8 @@ services:
   # Notification Service
   notification-service:
     build:
-      context: ./services/notification-service
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: services/notification-service/Dockerfile
     container_name: messagemesh-notification
     environment:
       PORT: 3005
@@ -244,8 +244,8 @@ services:
   # API Gateway
   api-gateway:
     build:
-      context: ./services/api-gateway
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: services/api-gateway/Dockerfile
     container_name: messagemesh-gateway
     environment:
       PORT: 3000
